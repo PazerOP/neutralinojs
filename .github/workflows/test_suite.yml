@@ -103,18 +103,12 @@ jobs:
       working-directory: ./bin/extensions/sampleextension
       run: npm ci
 
-    - name: Run Spec (Legacy Mode)
+    - name: Run Spec
       if: ${{ matrix.arch == 'x64' }}
       working-directory: ./spec
       run: |
         npm ci
         xvfb-run npm run test
-
-    - name: Run Spec (Persistent Mode)
-      if: ${{ matrix.arch == 'x64' }}
-      working-directory: ./spec
-      run: |
-        xvfb-run npm run test:persistent
 
 
   build-windows:
@@ -147,16 +141,11 @@ jobs:
       working-directory: ./bin/extensions/sampleextension
       run: npm ci
 
-    - name: Run Spec (Legacy Mode)
+    - name: Run Spec
       working-directory: ./spec
       run: |
         npm ci
         npm run test
-
-    - name: Run Spec (Persistent Mode)
-      working-directory: ./spec
-      run: |
-        npm run test:persistent
 
   build-darwin:
     needs: skip-check
@@ -188,13 +177,8 @@ jobs:
       working-directory: ./bin/extensions/sampleextension
       run: npm ci
 
-    - name: Run Spec (Legacy Mode)
+    - name: Run Spec
       working-directory: ./spec
       run: |
         npm ci
         npm run test
-
-    - name: Run Spec (Persistent Mode)
-      working-directory: ./spec
-      run: |
-        npm run test:persistent
