@@ -6,7 +6,7 @@ describe('updater.spec: updater namespace tests', () => {
 
     describe('updater.checkForUpdates', () => {
         it('throws an error for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater.checkForUpdates();
                 }
@@ -18,7 +18,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
 
         it('works with parameters', async () => {
-            runner.run(`
+            await runner.run(`
                 let info = await Neutralino.updater
                     .checkForUpdates('http://127.0.0.1:8080/updater_test/update_info.json');
 
@@ -32,7 +32,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
 
         it('handles network errors gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater
                         .checkForUpdates('http://127.0.0.1:99999/non_existent_file.json');
@@ -45,7 +45,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
 
         it('throws an error for invalid URL format', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater
                         .checkForUpdates('invalid-url');
@@ -58,7 +58,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
 
         it('handles multiple concurrent update checks gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 let updatePromises = [
                     Neutralino.updater.checkForUpdates('http://127.0.0.1:8080/updater_test/update_info.json'),
                     Neutralino.updater.checkForUpdates('http://127.0.0.1:8080/updater_test/update_info.json')
@@ -77,7 +77,7 @@ describe('updater.spec: updater namespace tests', () => {
         });  
         
         it('throws an error for empty update manifest', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater
                         .checkForUpdates('http://127.0.0.1:8080/updater_test/empty_update_info.json');
@@ -92,7 +92,7 @@ describe('updater.spec: updater namespace tests', () => {
 
     describe('updater.install', () => {
         it('throws an error if no updates fetched', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater.install();
                 }
@@ -104,7 +104,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
 
         it('replaces resources.neu with resourcesURL data', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.updater
                     .checkForUpdates('http://127.0.0.1:8080/updater_test/update_info.json');
 
@@ -127,7 +127,7 @@ describe('updater.spec: updater namespace tests', () => {
         });
        
         it('throws an error if no update manifest is loaded', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.updater.install();
                 }
@@ -139,7 +139,7 @@ describe('updater.spec: updater namespace tests', () => {
         });  
 
         it('throws an error for invalid file path during installation', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.updater
                     .checkForUpdates('http://127.0.0.1:8080/updater_test/update_info.json');
         

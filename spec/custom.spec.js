@@ -6,7 +6,7 @@ describe('custom.spec: custom namespace tests', () => {
 
     describe('custom.getMethods', () => {
         it('returns the custom methods array', async () => {
-            runner.run(`
+            await runner.run(`
                 let methods = await Neutralino.custom.getMethods();
                 await __close(JSON.stringify(methods));
             `);

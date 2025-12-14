@@ -6,7 +6,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getMemoryInfo', () => {
         it('returns physical memory info', async () => {
-            runner.run(`
+            await runner.run(`
                 let memoryInfo = await Neutralino.computer.getMemoryInfo();
                 await __close(JSON.stringify(memoryInfo));
             `);
@@ -21,7 +21,7 @@ describe('computer.spec: computer namespace tests', () => {
         });
 
         it('returns consistent and valid memory info', async () => {
-            runner.run(`
+            await runner.run(`
                 let memoryInfo = await Neutralino.computer.getMemoryInfo();
                 await __close(JSON.stringify(memoryInfo));
             `);
@@ -37,7 +37,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getArch', () => {
         it('returns the computer architecture', async () => {
-            runner.run(`
+            await runner.run(`
                 let arch = await Neutralino.computer.getArch();
                 await __close(arch);
             `);
@@ -47,7 +47,7 @@ describe('computer.spec: computer namespace tests', () => {
 
         it('returns a supported architecture', async () => {
             const supportedArchitectures = ['x64', 'arm', 'itanium', 'ia32', 'unknown'];
-            runner.run(`
+            await runner.run(`
                 let arch = await Neutralino.computer.getArch();
                 await __close(arch);
             `);  
@@ -58,7 +58,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getKernelInfo', () => {
         it('returns kernel details', async () => {
-            runner.run(`
+            await runner.run(`
                 let kernelInfo = await Neutralino.computer.getKernelInfo();
                 await __close(JSON.stringify(kernelInfo));
             `);
@@ -70,7 +70,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getOSInfo', () => {
         it('returns OS details', async () => {
-            runner.run(`
+            await runner.run(`
                 let osInfo = await Neutralino.computer.getOSInfo();
                 await __close(JSON.stringify(osInfo));
             `);
@@ -83,7 +83,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getCPUInfo', () => {
         it('returns CPU details', async () => {
-            runner.run(`
+            await runner.run(`
                 let cpuInfo = await Neutralino.computer.getCPUInfo();
                 await __close(JSON.stringify(cpuInfo));
             `);
@@ -100,7 +100,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getDisplays', () => {
         it('returns available displays', async () => {
-            runner.run(`
+            await runner.run(`
                 let displays = await Neutralino.computer.getDisplays();
                 await __close(JSON.stringify(displays));
             `);
@@ -127,7 +127,7 @@ describe('computer.spec: computer namespace tests', () => {
 
     describe('computer.getMousePosition', () => {
         it('returns the current mouse cursor position and it is within screen bounds', async () => {
-            runner.run(`
+            await runner.run(`
                 let pos = await Neutralino.computer.getMousePosition();
                 let screenInfo = await Neutralino.computer.getDisplays();
                 await __close(JSON.stringify({ position: pos, screen: screenInfo }));

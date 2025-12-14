@@ -6,7 +6,7 @@ describe('extensions.spec: extensions namespace tests', () => {
     if(process.env.GITHUB_ACTIONS) { 
     describe('extensions.getStats, extensions.dispatch, extensions.broadcast', () => {
         it('exports functions to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 let out = [
                     typeof Neutralino.extensions.getStats,
                     typeof Neutralino.extensions.dispatch,
@@ -24,7 +24,7 @@ describe('extensions.spec: extensions namespace tests', () => {
     else {
     describe('extensions.getStats', () => {
         it('returns extensions stats', async () => {
-            runner.run(``,
+            await runner.run(``,
             { beforeInitCode: `
                 Neutralino.events.on("extensionReady", async () => {
                     let stats = await Neutralino.extensions.getStats();
@@ -43,7 +43,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('returns empty stats when no extensions are loaded', async () => {
-            runner.run(`
+            await runner.run(`
                 let stats = await Neutralino.extensions.getStats();
                 await __close(JSON.stringify(stats));
             `, {args: '--enable-extensions=false'});  
@@ -59,7 +59,7 @@ describe('extensions.spec: extensions namespace tests', () => {
 
     describe('extensions.dispatch', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.extensions.dispatch('js.neutralino.sampleextension', 'testEvent', 'data');
                 await __close('done');
             `, {args: '--enable-extensions'});
@@ -67,7 +67,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('dispatches event with complex data', async () => {
-            runner.run(`
+            await runner.run(`
                 const complexData = { key1: 'value1', key2: 2, key3: [1, 2, 3] };
                 await Neutralino.extensions.dispatch('js.neutralino.sampleextension', 'testEvent', complexData);
                 await __close('done');
@@ -76,7 +76,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('handles dispatch with empty event name gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.extensions.dispatch('js.neutralino.sampleextension', '', 'data');
                 await __close('done');
             `, {args: '--enable-extensions'});
@@ -84,7 +84,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('handles dispatch with invalid extension id gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.extensions.dispatch('invalid.extension.id', 'testEvent', 'data');
                     await __close('done');
@@ -96,7 +96,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('handles dispatch with large data payload', async () => {
-            runner.run(`
+            await runner.run(`
                 const largeData = 'N'.repeat(1024 * 1024); 
                 await Neutralino.extensions.dispatch('js.neutralino.sampleextension', 'testEvent', largeData);
                 await __close('done');
@@ -105,7 +105,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('dispatches multiple events concurrently', async () => {
-            runner.run(`
+            await runner.run(`
                 const dispatches = [
                     Neutralino.extensions.dispatch('js.neutralino.sampleextension', 'firstEvent', 'data1'),
                     Neutralino.extensions.dispatch('js.neutralino.sampleextension', 'secondEvent', 'data2')
@@ -117,7 +117,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('throws an error when the extensions are not enabled', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.extensions.dispatch('js.neutralino.notconnectedextension', 'testEvent', 'data');
                     await __close('done');
@@ -131,7 +131,7 @@ describe('extensions.spec: extensions namespace tests', () => {
 
     describe('extensions.broadcast', () => {
         it('works without throwing errors', async () => {
-            runner.run(``,
+            await runner.run(``,
             { beforeInitCode: `
                 Neutralino.events.on("extensionReady", async () => {
                     await Neutralino.extensions.broadcast('testEvent', 'data');
@@ -142,7 +142,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });
 
         it('handles complex data', async () => {
-            runner.run(``,
+            await runner.run(``,
             { beforeInitCode: `
                 Neutralino.events.on("extensionReady", async () => {
                     const complexData = { key1: 'value1', key2: 2, key3: [1, 2, 3] };
@@ -154,7 +154,7 @@ describe('extensions.spec: extensions namespace tests', () => {
         });  
 
         it('broadcasts multiple events concurrently', async () => {
-            runner.run(``,
+            await runner.run(``,
             { beforeInitCode: `
                 Neutralino.events.on("extensionReady", async () => {
                     const broadcasts = [

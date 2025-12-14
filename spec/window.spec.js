@@ -6,7 +6,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.snapshot', () => {
         it('captures the screen and saves to the specified file path', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.snapshot('screenshot.png');
                 await Neutralino.filesystem.getStats('screenshot.png');
                 await __close('done');
@@ -15,7 +15,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('throws an error for missing file path parameter', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.window.snapshot();
                 } catch (err) {
@@ -28,7 +28,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.setTitle', () => {
         it('works without parameters', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setTitle();
                 await __close('done');
             `);
@@ -38,7 +38,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.getTitle', () => {
         it('returns the existing title string', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setTitle('NeutralinoJs');
                 let title = await Neutralino.window.getTitle();
                 await __close(title);
@@ -49,7 +49,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.maximize', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.maximize();
                 await __close('done');
             `);
@@ -57,7 +57,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('does nothing if already maximized', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.maximize();
                 await Neutralino.window.maximize();
                 await __close('done');
@@ -68,7 +68,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.isMaximized', () => {
         it('returns a boolean value', async () => {
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.window.isMaximized();
                 await __close(value.toString());
             `);
@@ -76,7 +76,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('verifies window is not maximized before maximizing', async () => {
-            runner.run(`
+            await runner.run(`
                 const isMaximized = await Neutralino.window.isMaximized();
                 await __close(JSON.stringify(isMaximized));
             `);
@@ -86,7 +86,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.unmaximize', () => {
         it('works without throwing errors and verifies that screen is unmaximized', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.unmaximize();
                 const isMaximized = await Neutralino.window.isMaximized();
                 await __close(JSON.stringify(isMaximized));
@@ -97,7 +97,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.minimize', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.window.minimize);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -106,7 +106,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.setFullScreen', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setFullScreen();
                 await __close('done');
             `);
@@ -116,7 +116,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.exitFullScreen', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.exitFullScreen();
                 let isFullScreen = await Neutralino.window.isFullScreen();
                 await __close(JSON.stringify(isFullScreen));
@@ -127,7 +127,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.isFullScreen', () => {
         it('returns a boolean value', async () => {
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.window.isFullScreen();
                 await __close(value.toString());
             `);
@@ -137,7 +137,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.show', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.show();
                 let isVisible = await Neutralino.window.isVisible();
                 await __close(JSON.stringify(isVisible));
@@ -148,7 +148,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.hide', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.hide();
                 let isVisible = await Neutralino.window.isVisible();
                 await __close(JSON.stringify(isVisible));
@@ -159,7 +159,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.focus', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.window.focus);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -168,7 +168,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.isVisible', () => {
         it('returns a boolean value', async () => {
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.window.isVisible();
                 await __close(value.toString());
             `);
@@ -178,14 +178,14 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.setIcon', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.window.setIcon);
             `);
             assert.equal(runner.getOutput(), 'function');
         });
 
         it('throws errors for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.window.setIcon();
                 }
@@ -199,7 +199,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.move', () => {
         it('moves the window without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.move(10, 5);
                 await __close('done');
             `);
@@ -207,7 +207,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('throws errors for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.window.move(10);
                 }
@@ -222,7 +222,7 @@ describe('window.spec: window namespace tests', () => {
             const newX = 100;
             const newY = 150;
     
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.move(${newX}, ${newY});
                 const position = await Neutralino.window.getPosition();
                 await __close(JSON.stringify(position));
@@ -235,7 +235,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.center', () => {
         it('centers the window without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.center();
                 await __close('done');
             `);
@@ -245,7 +245,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.setDraggableRegion', () => {
         it('registers draggable region without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setDraggableRegion(document.body);
                 await __close('done');
             `);
@@ -253,7 +253,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('throws errors for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.window.setDraggableRegion();
                 }
@@ -267,7 +267,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.unsetDraggableRegion', () => {
         it('unregisters draggable region without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setDraggableRegion(document.body);
                 await Neutralino.window.unsetDraggableRegion(document.body);
                 await __close('done');
@@ -276,7 +276,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('throws errors for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.window.setDraggableRegion();
                 }
@@ -292,7 +292,7 @@ describe('window.spec: window namespace tests', () => {
     if(process.platform == 'win32') {
     describe('window.setSize', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.window.setSize);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -302,7 +302,7 @@ describe('window.spec: window namespace tests', () => {
     else {
     describe('window.setSize', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setSize({
                     width: 100,
                     height: 200,
@@ -318,7 +318,7 @@ describe('window.spec: window namespace tests', () => {
         });
 
         it('doesns\'t throw errors for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setSize();
                 await __close('done');
             `);
@@ -329,7 +329,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.setAlwaysOnTop', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.setAlwaysOnTop();
                 await __close('done');
             `);
@@ -340,7 +340,7 @@ describe('window.spec: window namespace tests', () => {
             const initialX = 50;
             const initialY = 100;
     
-            runner.run(`
+            await runner.run(`
                 await Neutralino.window.move(${initialX}, ${initialY});
                 await Neutralino.window.setAlwaysOnTop(true);
                 const position = await Neutralino.window.getPosition();
@@ -354,7 +354,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.getSize', () => {
         it('returns size information', async () => {
-            runner.run(`
+            await runner.run(`
                 let stats = await Neutralino.window.getSize();
                 await __close(JSON.stringify(stats));
             `);
@@ -372,7 +372,7 @@ describe('window.spec: window namespace tests', () => {
 
     describe('window.getPosition', () => {
         it('returns position information', async () => {
-            runner.run(`
+            await runner.run(`
                 let pos = await Neutralino.window.getPosition();
                 await __close(JSON.stringify(pos));
             `);

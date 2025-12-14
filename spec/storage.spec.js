@@ -7,7 +7,7 @@ describe('storage.spec: storage namespace tests', () => {
     describe('storage.setData', () => {
 
         it('sets data without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('container', 'value');
                 await __close('done');
             `);
@@ -15,7 +15,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('throws an error for invalid keys', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.setData('/home/', 'value');
                 }
@@ -27,7 +27,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('removes storage record when data arg is not provided', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.setData('container', 'value');
                     await Neutralino.storage.setData('container');
@@ -41,7 +41,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('throws an error for invalid datatypes', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.setData('container', 123);
                 } catch(error) {
@@ -52,7 +52,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('persists data that is set', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('container', 'value');
                 let value = await Neutralino.storage.getData('container');
                 await __close(value);
@@ -61,7 +61,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('updates existing data without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('container', 'initial_value');
                 await Neutralino.storage.setData('container', 'updated_value');
                 let value = await Neutralino.storage.getData('container');
@@ -71,7 +71,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('throws an error for empty string key', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.setData('', 'value');
                 }
@@ -83,7 +83,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('sets large data values without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let largeValue = 'N'.repeat(10000); 
                 await Neutralino.storage.setData('large_value_key', largeValue);
                 let value = await Neutralino.storage.getData('large_value_key');
@@ -93,7 +93,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
         
         it('handles concurrent access without errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Promise.all([
                     Neutralino.storage.setData('concurrent_key_1', 'value_1'),
                     Neutralino.storage.setData('concurrent_key_2', 'value_2')
@@ -109,7 +109,7 @@ describe('storage.spec: storage namespace tests', () => {
 
     describe('storage.getData', () => {
         it('gets saved data without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('container', 'value');
                 let value = await Neutralino.storage.getData('container');
                 await __close(value);
@@ -118,7 +118,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('throws an error for invalid keys', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.getData('./test*', 'value');
                 }
@@ -130,7 +130,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('throws an error for keys that don\'t exist', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.storage.getData('test_key', 'value');
                 }
@@ -142,7 +142,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
         
         it('handles concurrent access without errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('concurrent_key', 'value');
                 let values = await Promise.all([
                     Neutralino.storage.getData('concurrent_key'),
@@ -155,7 +155,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('gets JSON data without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let jsonData = { name: "test", value: 123 };
                 await Neutralino.storage.setData('json_key', JSON.stringify(jsonData));
                 let value = await Neutralino.storage.getData('json_key');
@@ -167,7 +167,7 @@ describe('storage.spec: storage namespace tests', () => {
 
     describe('storage.getKeys', () => {
         it('returns a list of storage keys', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('test_key_test', 'data');
                 let keys = await Neutralino.storage.getKeys();
                 await __close(JSON.stringify(keys));
@@ -178,7 +178,7 @@ describe('storage.spec: storage namespace tests', () => {
         });
 
         it('returns all stored keys', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.storage.setData('key_1', 'value_1');
                 await Neutralino.storage.setData('key_2', 'value_2');
                 let keys = await Neutralino.storage.getKeys();

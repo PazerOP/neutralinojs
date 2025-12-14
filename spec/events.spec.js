@@ -6,7 +6,7 @@ describe('events.spec: events namespace tests', () => {
 
     describe('events.on', () => {
         it('sets an event without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {}
                 await Neutralino.events.on('testEvent', onTestEvent);
                 await __close('done');
@@ -15,7 +15,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers the event handler when an event is dispatched', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     __close('done');
                 }
@@ -26,7 +26,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('handles multiple events', async () => {    
-            runner.run(`
+            await runner.run(`
                 let isEvent1Triggered = false;
                 let isEvent2Triggered = false;
                 function onTestEvent1() {
@@ -47,7 +47,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('ensures event handlers are not duplicated', async () => {
-            runner.run(`
+            await runner.run(`
                 let callCount = 0;
                 function onTestEvent() {
                     callCount++;
@@ -66,7 +66,7 @@ describe('events.spec: events namespace tests', () => {
 
     describe('events.off', () => {
         it('unsets an event without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {}
                 await Neutralino.events.on('testEvent', onTestEvent);
                 await Neutralino.events.off('testEvent', onTestEvent);
@@ -76,7 +76,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does not trigger the event handler after it is unset', async () => {
-            runner.run(`
+            await runner.run(`
                 let eventTriggered = false;
                 function onTestEvent() {
                     eventTriggered = true;
@@ -93,7 +93,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does nothing if trying to unset a handler that was not set', async () => {
-            runner.run(`
+            await runner.run(`
                 let eventTriggered = false;
                 function onTestEvent() {
                     eventTriggered = true;
@@ -109,7 +109,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('can unset multiple handlers for the same event', async () => {
-            runner.run(`
+            await runner.run(`
                 let isEvent1Triggered = false;
                 let isEvent2Triggered = false;
     
@@ -137,7 +137,7 @@ describe('events.spec: events namespace tests', () => {
 
     describe('events.dispatch', () => {
         it('triggers the callback when the event is dispatched', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     __close('done');
                 }
@@ -148,7 +148,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers the callback with data', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent(evt) {
                     __close(evt.detail);
                 }
@@ -159,7 +159,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does not throw an error when no event listeners are registered', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.events.dispatch('testEvent');
                 setTimeout(async () => {
                     await __close('done');
@@ -169,7 +169,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers multiple callbacks for the same event', async () => {
-            runner.run(`
+            await runner.run(`
                 let isEvent1Triggered = false;
                 let isEvent2Triggered = false;
                 function onTestEvent1() {
@@ -189,7 +189,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does not trigger the callback after it is removed', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     __close('triggered');
                 }
@@ -202,7 +202,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers the callback multiple times for multiple dispatches', async () => {
-            runner.run(`
+            await runner.run(`
                 let callCount = 0;
                 function onTestEvent() {
                     callCount++;
@@ -219,7 +219,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('passes multiple data arguments to the callback', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent(evt) {
                     __close(JSON.stringify([evt.detail.arg1, evt.detail.arg2]));
                 }
@@ -231,7 +231,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('handles errors in the callback gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     throw new Error('Test error');
                 }
@@ -245,7 +245,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('continues to trigger remaining callbacks if one of them throws an error', async () => {
-            runner.run(`
+            await runner.run(`
                 let isEvent2Triggered = false;
                 function onTestEvent1() {
                     throw new Error('Test error');
@@ -267,7 +267,7 @@ describe('events.spec: events namespace tests', () => {
 
     describe('events.broadcast', () => {
         it('triggers the registered event callback', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent(evt) {
                     __close('done');
                 }
@@ -278,7 +278,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers the registered event callback with data', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent(evt) {
                     __close(evt.detail);
                 }
@@ -289,7 +289,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('throws an error for missing params', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.events.broadcast();
                 }
@@ -301,7 +301,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does not throw an error when no event listeners are registered', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.events.broadcast('testEvent');
                 setTimeout(async () => {
                     await __close('done');
@@ -311,7 +311,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers multiple callbacks for the same event', async () => {
-            runner.run(`
+            await runner.run(`
                 isEvent1Triggered = false;
                 isEvent2Triggered = false;
                 function onTestEvent1() {
@@ -331,7 +331,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('does not trigger the callback after it is removed', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     __close('triggered');
                 }
@@ -346,7 +346,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('triggers the callback multiple times for multiple broadcasts', async () => {
-            runner.run(`
+            await runner.run(`
                 let callCount = 0;
                 function onTestEvent() {
                     callCount++;
@@ -363,7 +363,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('passes multiple data arguments to the callback', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent(evt) {
                     __close(JSON.stringify([evt.detail.arg1, evt.detail.arg2]));
                 }
@@ -375,7 +375,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('handles errors in the callback gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 function onTestEvent() {
                     throw new Error('Test error');
                 }
@@ -389,7 +389,7 @@ describe('events.spec: events namespace tests', () => {
         });
 
         it('continues to trigger remaining callbacks if one throws an error', async () => {
-            runner.run(`
+            await runner.run(`
                 let isEvent2Triggered = false;
                 function onTestEvent1(evt) {
                     throw new Error('Test error');
