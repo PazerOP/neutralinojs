@@ -6,7 +6,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.writeText', () => {
         it('throws an error if the parameter is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeText();
                 }
@@ -17,7 +17,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
         });
         it('works without throwing errors if parameter is provided', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Test');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -25,7 +25,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
             assert.equal(runner.getOutput(), 'Test');
         });
         it('throws an error if the parameter is not a string', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeText(123);
                 }
@@ -34,7 +34,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeText(null);
                 }
@@ -43,7 +43,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeText(undefined);
                 }
@@ -52,7 +52,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeText({ key: 'value' });
                 }
@@ -64,7 +64,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
         
         it('successfully writes special characters to the clipboard', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Special characters: @#$%^&*☁☀☊☄');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -74,7 +74,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         
         it('successfully writes a large amount of text to the clipboard', async () => {
             let largeText = 'A'.repeat(10000000);
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('${largeText}');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -83,7 +83,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('successfully writes an empty string to the clipboard', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -94,7 +94,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         it('handles concurrent writes to the clipboard', async () => {
             const text1 = 'Hello';
             const text2 = 'World';
-            runner.run(`
+            await runner.run(`
                 await Promise.all([
                     Neutralino.clipboard.writeText('${text1}'),
                     Neutralino.clipboard.writeText('${text2}')
@@ -112,7 +112,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.readText', () => {
         it('returns the previously stored text', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Test value');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -121,7 +121,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns an empty string if the clipboard is empty', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.clear();
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -130,7 +130,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns the same text for multiple consecutive reads', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Test value');
                 let clipboardText1 = await Neutralino.clipboard.readText();
                 let clipboardText2 = await Neutralino.clipboard.readText();
@@ -143,7 +143,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns text with leading and trailing whitespaces intact', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('  Test value  ');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -152,7 +152,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns text with special characters intact', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('@#$%^&*☁☀☊☄');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -161,7 +161,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns text with newline characters intact', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Line1\\nLine2\\nLine3');
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -172,7 +172,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.writeHTML', () => {
         it('throws an error if the parameter is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeHTML();
                 }
@@ -184,7 +184,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('works without throwing errors if parameter is provided', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML('<b>Test</b>');
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -193,7 +193,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('throws an error if the parameter is not a string', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeHTML(123);
                 }
@@ -202,7 +202,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeHTML(null);
                 }
@@ -211,7 +211,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeHTML(undefined);
                 }
@@ -220,7 +220,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 }
             `);
             assert.equal(runner.getOutput(), 'NE_RT_NATRTER');
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeHTML({ key: 'value' });
                 }
@@ -232,7 +232,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('successfully writes special characters to the clipboard', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML('<b>Special characters: @#$%^&*☁☀☊☄</b>');
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -241,7 +241,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('successfully writes an empty string to the clipboard', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML('');
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -252,7 +252,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         it('handles concurrent writes to the clipboard', async () => {
             const html1 = '<b>Hello</b>';
             const html2 = '<b>World</b>';
-            runner.run(`
+            await runner.run(`
                 await Promise.all([
                     Neutralino.clipboard.writeHTML('${html1}'),
                     Neutralino.clipboard.writeHTML('${html2}')
@@ -270,7 +270,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.readHTML', () => {
         it('returns the previously stored HTML', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML('<b>Test value</b>');
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -279,7 +279,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns an empty string if the clipboard is empty', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.clear();
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -288,7 +288,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns HTML with special characters intact', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML('<b>@#$%^&*☁☀☊☄</b>');
                 let clipboardHTML = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHTML);
@@ -311,7 +311,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 </div>
             `;
     
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML(${JSON.stringify(complexHtml)});
                 let clipboardHtml = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHtml);
@@ -340,7 +340,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 </table>
             `;
         
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML(${JSON.stringify(htmlTable)});
                 let clipboardHtml = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHtml);
@@ -362,7 +362,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
                 </div>
             `;
     
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeHTML(${JSON.stringify(htmlWithSvg)});
                 let clipboardHtml = await Neutralino.clipboard.readHTML();
                 await __close(clipboardHtml);
@@ -377,7 +377,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.writeImage', () => {
         it('throws an error when the image data is invalid', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeImage('Invalid Image Data');
                     let clipboardImage = await Neutralino.clipboard.readImage();
@@ -392,7 +392,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.readImage', () => {
         it('returns null when the clipboard is empty', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.clear();
                 let clipboardImage = await Neutralino.clipboard.readImage();
                 await __close(JSON.stringify(clipboardImage));
@@ -401,7 +401,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('throws an error when the data is invalid', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.clipboard.writeImage('Invalid image data');
                     let clipboardImage = await Neutralino.clipboard.readImage();
@@ -415,7 +415,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
         it('extracts image contents and forms a JSON object', async () => {
             
-            runner.run(`
+            await runner.run(`
                 let imageData = {
                     width: 400,
                     height: 400,
@@ -442,7 +442,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.clear', () => {
         it('clears the clipboard', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Test value');
                 await Neutralino.clipboard.clear();
                 let clipboardText = await Neutralino.clipboard.readText();
@@ -451,7 +451,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
             assert.equal(runner.getOutput(), '');
         });
         it('clears the clipboard even when it contains special characters', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('@#$%^&*☁☀☊☄');
                 await Neutralino.clipboard.clear();
                 let clipboardText = await Neutralino.clipboard.readText();
@@ -460,7 +460,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
             assert.equal(runner.getOutput(), '');
         });
         it('clears the clipboard even when it contains a large amount of text', async () => {
-            runner.run(`
+            await runner.run(`
                 let largeText = 'A'.repeat(1000000);
                 await Neutralino.clipboard.writeText(largeText);
                 await Neutralino.clipboard.clear();
@@ -471,7 +471,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('does nothing if the clipboard is already empty', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.clear();
                 let clipboardText = await Neutralino.clipboard.readText();
                 await __close(clipboardText);
@@ -482,7 +482,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
 
     describe('clipboard.getFormat', () => {
         it('returns the correct format when the format is text', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.writeText('Test value');
                 let format = await Neutralino.clipboard.getFormat();
                 await __close(format);
@@ -491,7 +491,7 @@ describe('clipboard.spec: clipboard namespace tests', () => {
         });
 
         it('returns unknown when the format is unknown', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.clipboard.clear();
                 let format = await Neutralino.clipboard.getFormat();
                 await __close(format);

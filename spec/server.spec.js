@@ -6,7 +6,7 @@ describe('server.spec: server namespace tests', () => {
 
     describe('server.mount', () => {
         it('mounts and serves a directory successfully', async () => {
-            runner.run(`
+            await runner.run(`
                 const response = {};
                 const targetPath = NL_PATH + '/.tmp/test-mount';
                 await Neutralino.filesystem.createDirectory(targetPath);
@@ -28,7 +28,7 @@ describe('server.spec: server namespace tests', () => {
             assert.ok(output.fetch2 === 200, 'Expected a request to a file in a mounted directory to succeed');
         });
         it('unmounts a directory successfully', async () => {
-            runner.run(`
+            await runner.run(`
                 const response = {};
                 const targetPath = NL_PATH + '/.tmp/test-mount';
                 await Neutralino.filesystem.createDirectory(targetPath);
@@ -52,7 +52,7 @@ describe('server.spec: server namespace tests', () => {
             assert.ok(output.fetch2 === 404, 'Expected a file request to an unmounted directory to fail');
         });
         it('mounts and reads from a directory that has non-latin characters', async () => {
-            runner.run(`
+            await runner.run(`
                 const response = {};
                 const targetPath = NL_PATH + '/.tmp/test-mount-сосисочка';
                 await Neutralino.filesystem.createDirectory(targetPath);

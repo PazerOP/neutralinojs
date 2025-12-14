@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node index.js",
+    "test:persistent": "node index.js --persistent"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^11.1.0"
+    "mocha": "^11.1.0",
+    "ws": "^8.14.2"
   }
 }

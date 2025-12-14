@@ -6,7 +6,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.createDirectory', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/abc');
                 await __close('done');
             `);
@@ -14,7 +14,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('works for nested directories', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/nested/abc');
                 let entries = await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp/');
                 let nested_entries = await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp/nested');
@@ -27,7 +27,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws error for a duplicate directory name', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/abc');
                     await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/abc');
@@ -39,7 +39,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for invalid path names', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/\0invalidpath');
                 } catch (error) {
@@ -52,7 +52,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.remove', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/abcd');
                 await Neutralino.filesystem.remove(NL_PATH + '/.tmp/abcd');
                 await __close('done');
@@ -61,7 +61,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if the directory does not exist', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.remove(NL_PATH + '/.tmp/abcd');
                 } catch (error) {
@@ -72,7 +72,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('removing a file instead of directory works as expected', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.remove(NL_PATH + '/.tmp/test.txt');
                 let entries = await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp');
@@ -86,7 +86,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.writeFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await __close('done');
             `);
@@ -94,7 +94,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('works with special characters', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Special characters: @#$%^&*☁☀☊☄');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
                 await __close(content);
@@ -103,7 +103,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('overwrites existing files', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Updated Hello');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -115,7 +115,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.appendFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', 'World');
                 await __close('done');
@@ -124,7 +124,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends content to files', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', ' World');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -134,7 +134,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends to an empty file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', '');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -144,7 +144,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends an empty string to a file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', '');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -154,7 +154,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends special characters to a file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', '@#$%^&*☁☀☊☄');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -164,7 +164,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('creates and appends to a non-existent file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/newfile.txt', 'Hello World');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/newfile.txt');
                 await __close(content);
@@ -174,7 +174,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
         it('appends large content to a file', async () => {
             let largeContent = 'N'.repeat(10000); 
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Start');
                 await Neutralino.filesystem.appendFile(NL_PATH + '/.tmp/test.txt', '${largeContent}');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -186,7 +186,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.readFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
                 await __close(content);
@@ -195,7 +195,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('allows changing file cursor', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'World');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt', { pos: 2 });
                 await __close(content);
@@ -204,7 +204,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('allows changing file reader buffer size', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt', { size: 3 });
                 await __close(content);
@@ -213,7 +213,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('works properly with both pos and size options', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
                 let content = await Neutralino.filesystem
                                     .readFile(NL_PATH + '/.tmp/test.txt', { pos: 6, size: 4 });
@@ -223,7 +223,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('reads an empty file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', '');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
                 await __close(content);
@@ -232,7 +232,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if the file does not exist', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
                 } catch (error) {
@@ -245,7 +245,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.writeBinaryFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let rawBin = new ArrayBuffer(1);
                 let view = new Uint8Array(rawBin);
                 view[0] = 64; // Saves ASCII '@' to the binary file
@@ -256,7 +256,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('writes a large binary file without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let size = 5 * 1024 * 1024;
                 let rawBin = new ArrayBuffer(size);
                 let view = new Uint8Array(rawBin);
@@ -274,7 +274,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.appendBinaryFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let rawBin = new ArrayBuffer(1);
                 let view = new Uint8Array(rawBin);
                 view[0] = 64; // Saves ASCII '@' to the binary file
@@ -286,7 +286,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends binary content to files', async () => {
-            runner.run(`
+            await runner.run(`
                 let rawBin = new ArrayBuffer(1);
                 let view = new Uint8Array(rawBin);
                 view[0] = 64; // Saves ASCII '@' to the binary file
@@ -299,7 +299,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('appends to a non-existent file', async () => {
-            runner.run(`
+            await runner.run(`
                 let rawBin = new ArrayBuffer(1);
                 let view = new Uint8Array(rawBin);
                 view[0] = 64; // Saves ASCII '@' to the binary file
@@ -311,7 +311,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('handles concurrent appends', async () => {
-            runner.run(`
+            await runner.run(`
                 let rawBin1 = new ArrayBuffer(1);
                 let view1 = new Uint8Array(rawBin1);
                 view1[0] = 65; 
@@ -333,7 +333,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.readBinaryFile', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let view = new Uint8Array(1);
                 view[0] = 64; // Saves ASCII '@' to the binary file
                 await Neutralino.filesystem.writeBinaryFile(NL_PATH + '/.tmp/test.bin', view.buffer);
@@ -346,7 +346,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('allows changing file cursor', async () => {
-            runner.run(`
+            await runner.run(`
                 let view = new Uint8Array([64, 65, 66, 67]);
                 await Neutralino.filesystem.writeBinaryFile(NL_PATH + '/.tmp/test.bin', view.buffer);
 
@@ -363,7 +363,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('allows changing file reader buffer size', async () => {
-            runner.run(`
+            await runner.run(`
                 let view = new Uint8Array([164, 165, 166, 167]);
                 await Neutralino.filesystem.writeBinaryFile(NL_PATH + '/.tmp/test.bin', view.buffer);
 
@@ -379,7 +379,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('works properly with both pos and size options', async () => {
-            runner.run(`
+            await runner.run(`
                 let view = new Uint8Array([1, 2, 3, 4]);
                 await Neutralino.filesystem.writeBinaryFile(NL_PATH + '/.tmp/test.bin', view.buffer);
 
@@ -397,7 +397,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('reads a partially filled file', async () => {
-            runner.run(`
+            await runner.run(`
                 let view = new Uint8Array([1, 2, 3]);
                 await Neutralino.filesystem.writeBinaryFile(NL_PATH + '/.tmp/test.bin', view.buffer);
     
@@ -414,7 +414,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('reads large files without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let size = 10 * 1024 * 1024;
                 let largeBin = new ArrayBuffer(size);
                 let view = new Uint8Array(largeBin);
@@ -433,7 +433,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.openFile', () => {
         it('returns file identifiers without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let fileIds = [];
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test2.txt', 'Hello');
@@ -452,7 +452,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for missing args', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.openFile();
                 }
@@ -464,7 +464,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error when opening a non-existent file', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/nonexistent.txt');
                 } catch (error) {
@@ -477,7 +477,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.updateOpenedFile', () => {
         it('triggers the data event', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
 
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
@@ -492,7 +492,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('triggers the end event', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
 
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
@@ -510,7 +510,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('reads the entire file with readAll', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
 
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
@@ -534,7 +534,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('changes the file cursor', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Neutralinojs');
 
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
@@ -562,7 +562,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if an invalid action is provided', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                     await Neutralino.filesystem.updateOpenedFile(fileId, 'invalid', 3);
@@ -574,7 +574,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('handles large data reading in chunks', async () => {
-            runner.run(`
+            await runner.run(`
                 let largeText = 'a'.repeat(1024 * 1024);
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/large.txt', largeText);
     
@@ -599,7 +599,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if updating an unopened file', async () => {
-            runner.run(`    
+            await runner.run(`    
                 try {
                     await Neutralino.filesystem.updateOpenedFile(123, 'read', 3);
                 } catch (error) {
@@ -613,7 +613,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.getOpenedFileInfo', () => {
         it('returns opened file information', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 let info = await Neutralino.filesystem.getOpenedFileInfo(fileId);
@@ -629,7 +629,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
 
         it('returns the file identifier properly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 let info = await Neutralino.filesystem.getOpenedFileInfo(fileId);
@@ -640,7 +640,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns updated eof properly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 await Neutralino.filesystem.updateOpenedFile(fileId, 'readAll');
@@ -652,7 +652,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns returns updated pos properly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 await Neutralino.filesystem.updateOpenedFile(fileId, 'seek', 3);
@@ -664,7 +664,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns returns updated lastRead properly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 await Neutralino.filesystem.updateOpenedFile(fileId, 'read', 2);
@@ -676,7 +676,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
         
         it('returns updated pos after reading bytes', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 let fileId = await Neutralino.filesystem.openFile(NL_PATH + '/.tmp/test.txt');
                 await Neutralino.filesystem.updateOpenedFile(fileId, 'read', 2);
@@ -690,7 +690,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.readDirectory', () => {
         it('returns directory entries', async () => {
-            runner.run(`
+            await runner.run(`
                 let entries = await Neutralino.filesystem.readDirectory(NL_PATH);
                 await __close(JSON.stringify(entries));
             `);
@@ -701,7 +701,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns empty array for an empty directory', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/emptyDir');
                 let entries = await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp/emptyDir');
                 await __close(JSON.stringify(entries));
@@ -712,7 +712,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns entries with different file types', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/mixedDir');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/mixedDir/test.txt', 'Hello');
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/mixedDir/subDir');
@@ -726,7 +726,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns entries for nested directories', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/parentDir');
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/parentDir/childDir');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/parentDir/childDir/test.txt', 'Nested file');
@@ -742,7 +742,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for non-existent directory', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp/nonExistentDir');
                 } catch (error) {
@@ -753,7 +753,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });    
 
         it('works with Unicode characters', async () => {
-             runner.run(`
+             await runner.run(`
                  await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/ɦ');
                  let entries = await Neutralino.filesystem.readDirectory(NL_PATH + '/.tmp');
                  await __close(JSON.stringify(entries));
@@ -765,7 +765,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.copy', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/test_new.txt');
                 await __close('done');
@@ -773,7 +773,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
             assert.equal(runner.getOutput(), 'done');
         });
         it('works when the destination file already exists', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Hello');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/test_new.txt');
@@ -783,7 +783,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('copies file content correctly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/test_new.txt');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test_new.txt');
@@ -794,7 +794,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('copies a file into a different directory', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/newDir');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/newDir/test.txt');
@@ -807,7 +807,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
         it('copies a large file correctly', async () => {
             let largeContent = 'N'.repeat(10 * 1024 * 1024); 
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/large_test.txt', '${largeContent}');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/large_test.txt', NL_PATH + '/.tmp/large_test_new.txt');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/large_test_new.txt');
@@ -818,7 +818,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
         
         it('overwrites the existing file with overwrite option', async () => {
-            runner.run(`
+            await runner.run(`
             await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Old Content');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/test_new.txt', { overwrite: true });
@@ -830,7 +830,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('skips copying if the destination file exists with skip option', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Hello');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Old Content');
                 await Neutralino.filesystem.copy(NL_PATH + '/.tmp/test.txt', NL_PATH + '/.tmp/test_new.txt', { skip: true });
@@ -842,7 +842,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
         
         it('copies directories recursively with recursive option', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/sourceDir');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/sourceDir/test.txt', 'Hello');
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/sourceDir/nestedDir');
@@ -863,7 +863,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.move', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Hello');
                 await Neutralino.filesystem.move(NL_PATH + '/.tmp/test_new.txt', NL_PATH + '/.tmp/test.txt');
                 await __close('done');
@@ -872,7 +872,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('moves a file and retains content', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Hello Content');
                 await Neutralino.filesystem.move(NL_PATH + '/.tmp/test_new.txt', NL_PATH + '/.tmp/test.txt');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test.txt');
@@ -882,7 +882,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error when moving to a non-existent directory', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'Hello');
                 try {
                     await Neutralino.filesystem.move(NL_PATH + '/.tmp/test_new.txt', NL_PATH + '/.tmp/nonexistent/test.txt');
@@ -894,7 +894,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('overwrites an existing file', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Old Content');
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_new.txt', 'New Content');
                 await Neutralino.filesystem.move(NL_PATH + '/.tmp/test_new.txt', NL_PATH + '/.tmp/test.txt');
@@ -905,7 +905,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('moves a file to the same location without error', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test_same.txt', 'Hello Same');
                 await Neutralino.filesystem.move(NL_PATH + '/.tmp/test_same.txt', NL_PATH + '/.tmp/test_same.txt');
                 let content = await Neutralino.filesystem.readFile(NL_PATH + '/.tmp/test_same.txt');
@@ -917,7 +917,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.getStats', () => {
         it('returns file stats', async () => {
-            runner.run(`
+            await runner.run(`
                 let stats = await Neutralino.filesystem.getStats(NL_PATH);
                 await __close(JSON.stringify(stats));
             `);
@@ -932,7 +932,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for non-existent paths', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     let stats = await Neutralino.filesystem.getStats(NL_PATH + '/invalid-path');
                 }
@@ -944,7 +944,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns updated modifiedAt after file modification', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test-file.txt', 'Hello World');
                 let statsBefore = await Neutralino.filesystem.getStats(NL_PATH + '/.tmp/test-file.txt');
                 await new Promise(resolve => setTimeout(resolve, 1000));  // Ensure the timestamp changes
@@ -957,7 +957,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns stats for hidden files', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/.hidden-file', 'Hidden Content');
                 let stats = await Neutralino.filesystem.getStats(NL_PATH + '/.tmp/.hidden-file');
                 await __close(JSON.stringify(stats));
@@ -969,7 +969,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('returns stats for empty files', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/empty-file.txt', '');
                 let stats = await Neutralino.filesystem.getStats(NL_PATH + '/.tmp/empty-file.txt');
                 await __close(JSON.stringify(stats));
@@ -983,7 +983,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.createWatcher', () => {
         it('returns watcher identifiers without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let watcherIds = [];
 
                 let watcherId = await Neutralino.filesystem.createWatcher(NL_PATH);
@@ -1000,7 +1000,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('dispatches events for internal watcher events', async () => {
-            runner.run(`
+            await runner.run(`
                 let watcherId = await Neutralino.filesystem.createWatcher(NL_PATH + '/.tmp');
                 await Neutralino.events.on('watchFile', async (evt) => {
                     if(evt.detail.id == watcherId) {
@@ -1018,7 +1018,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for missing args', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.createWatcher();
                 }
@@ -1030,7 +1030,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for non-existent paths', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.createWatcher(NL_PATH + '/invalid-path');
                 }
@@ -1044,7 +1044,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.removeWatcher', () => {
         it('removes a watcher without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 let watcherId = await Neutralino.filesystem.createWatcher(NL_PATH);
                 await Neutralino.filesystem.removeWatcher(watcherId);
                 await __close(watcherId.toString());
@@ -1054,7 +1054,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for missing args', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.removeWatcher();
                 }
@@ -1066,7 +1066,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error for non-existent watcher identifiers', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.removeWatcher(1000);
                 }
@@ -1080,7 +1080,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.getWatchers', () => {
         it('returns current watchers', async () => {
-            runner.run(`
+            await runner.run(`
                 let watcherId = await Neutralino.filesystem.createWatcher(NL_PATH);
                 let watchers = await Neutralino.filesystem.getWatchers();
                 await Neutralino.filesystem.removeWatcher(watcherId);
@@ -1097,7 +1097,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
     
     describe('filesystem.getRelativePath', () => {
         it('returns an error if the path field is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.getRelativePath();
                 } catch (error) {
@@ -1108,7 +1108,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('calculates relative path with a custom base path', async () => {
-            runner.run(`
+            await runner.run(`
                 let base = NL_PATH + '/.tmp';
                 await Neutralino.filesystem.writeFile(NL_PATH + '/.tmp/test.txt', 'Dummy content');
                 let response = await Neutralino.filesystem.getRelativePath(NL_PATH + '/.tmp/test.txt', base);
@@ -1119,7 +1119,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('handles paths that are equal to the base path', async () => {
-            runner.run(`
+            await runner.run(`
                 let base = NL_PATH + '/folder';
                 await Neutralino.filesystem.writeFile(NL_PATH + '/folder', 'Dummy content');
                 let response = await Neutralino.filesystem.getRelativePath(NL_PATH + '/folder', NL_PATH + '/folder');
@@ -1132,7 +1132,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.getPathParts', () => {
         it('returns path parts for a valid file path with no extension', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/folder/file';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1151,7 +1151,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a file path with a single dot extension', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/folder/.hiddenfile';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1170,7 +1170,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a path with special characters', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/folder/special@file#name.txt';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1189,7 +1189,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a root path', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH;
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1208,7 +1208,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a path with a root directory', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/root/directory/file.txt';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1227,7 +1227,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a path with multiple nested directories', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/nested/dir/structure/file.ext';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1246,7 +1246,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a path with a filename that starts with a dot', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = NL_PATH + '/folder/.config/file.txt';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1265,7 +1265,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
     
         it('returns path parts for a path with absolute path separators', async () => {
-            runner.run(`
+            await runner.run(`
                 let path = '/absolute/path/to/file.txt';
                 let response = await Neutralino.filesystem.getPathParts(path);
                 await __close(JSON.stringify(response));
@@ -1285,7 +1285,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
     });
     describe('filesystem.getPermissions', () => {
         it('throws an error if the path field is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.getPermissions();
                 } catch (error) {
@@ -1296,7 +1296,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if the path doesn\'t exist', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.getPermissions(NL_PATH + '/.tmp/test-dir');
                 } catch (error) {
@@ -1307,7 +1307,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
         
         it('returns file permissions', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {
                     ownerRead: true,
@@ -1326,7 +1326,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('updates file permissions when all parameters are used', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 const permissions = await Neutralino.filesystem.getPermissions(NL_PATH + '/.tmp/test-dir');
                 await __close(JSON.stringify(permissions));
@@ -1352,7 +1352,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
 
     describe('filesystem.setPermissions', () => {
         it('throws an error if the path field is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.setPermissions();
                 } catch (error) {
@@ -1363,7 +1363,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('throws an error if the path doesn\'t exist', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {ownerRead: true});
                 } catch (error) {
@@ -1374,7 +1374,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
         
         it('updates file permissions when two parameters are used', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {
                     ownerRead: true,
@@ -1393,7 +1393,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('updates file permissions when all parameters are used', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {
                     ownerRead: true,
@@ -1412,7 +1412,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('adds file permissions', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {
                     othersAll: true 
@@ -1427,7 +1427,7 @@ describe('filesystem.spec: filesystem namespace tests', () => {
         });
 
         it('removes file permissions', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.filesystem.createDirectory(NL_PATH + '/.tmp/test-dir')
                 await Neutralino.filesystem.setPermissions(NL_PATH + '/.tmp/test-dir', {
                     all: true 

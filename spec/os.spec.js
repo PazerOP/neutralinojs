@@ -6,7 +6,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.execCommand', () => {
         it('executes a command and returns result', async () => {
-            runner.run(`
+            await runner.run(`
                 let info = await Neutralino.os.execCommand('node --version');
                 await __close(JSON.stringify(info));
             `);
@@ -21,7 +21,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('accepts stdIn', async () => {
-            runner.run(`
+            await runner.run(`
                 let info = await Neutralino.os.execCommand('node', {stdIn: 'console.log("N");'});
                 await __close(JSON.stringify(info));
             `);
@@ -31,7 +31,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('executes command in the background', async () => {
-            runner.run(`
+            await runner.run(`
                 let info = await Neutralino.os.execCommand('node', { background: true });
                 await __close(JSON.stringify(info));
             `);
@@ -42,7 +42,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('executes a command in a specific directory', async () => {
-            runner.run(`
+            await runner.run(`
                 let info = await Neutralino.os.execCommand('node --version', { cwd: './' });
                 await __close(JSON.stringify(info));
             `);
@@ -59,7 +59,7 @@ describe('os.spec: os namespace tests', () => {
 
      describe('os.spawnProcess', () => {
         it('spawns a processes and returns the virtual pid and pid', async () => {
-            runner.run(`
+            await runner.run(`
                 let vids = [];
                 let vid = await Neutralino.os.spawnProcess('node'); // This is non-blocking (multi-threaded)
                 vids.push(vid);
@@ -75,7 +75,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('assigns a unique virtual pid to each process', async () => {
-            runner.run(`
+            await runner.run(`
                 let ids = [];
                 for (let i = 0; i < 10; i++) {
                     let proc = await Neutralino.os.spawnProcess('node -e "setTimeout(() => {}, 5000);"');
@@ -93,7 +93,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('sends the exit code with the exit action via the spawnProcess event', async () => {
-            runner.run(`
+            await runner.run(`
 
                 let proc = await Neutralino.os.spawnProcess('node --version');
                 // Immediate command, so we get exit code instantly
@@ -108,7 +108,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('sends stdOut with the stdOut action via the spawnProcess event', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino
                             .os.spawnProcess('node -e "setTimeout(() => console.log(\\\\"done\\\\"), 1000);"');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
@@ -121,7 +121,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('sends stdErr with the stdErr action via the spawnProcess event', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node --unknown-option');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'stdErr') {
@@ -134,7 +134,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('handles long-running processes', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node -e "setInterval(() => console.log(\\\\"running\\\\"), 1000);"');
                 let receivedData = '';
                 Neutralino.events.on('spawnedProcess', async (evt) => {
@@ -153,7 +153,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.getSpawnedProcesses', () => {
         it('returns spawned processes', async () => {
-            runner.run(`
+            await runner.run(`
                 let vid = await Neutralino.os.spawnProcess('node');
                 let processes = await Neutralino.os.getSpawnedProcesses();
                 await __close(JSON.stringify(processes));
@@ -167,7 +167,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('returns empty array when no processes are running', async () => {
-            runner.run(`
+            await runner.run(`
                 let processes = await Neutralino.os.getSpawnedProcesses();
                 await __close(JSON.stringify(processes));
             `);
@@ -176,7 +176,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('returns multiple spawned processes', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.spawnProcess('node -e "setTimeout(() => {}, 5000);"');
                 await Neutralino.os.spawnProcess('node -e "setTimeout(() => {}, 5000);"');
                 let processes = await Neutralino.os.getSpawnedProcesses();
@@ -192,7 +192,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('ensures processes have valid ids and pids', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.spawnProcess('node -e "setTimeout(() => {}, 5000);"');
                 let processes = await Neutralino.os.getSpawnedProcesses();
                 await __close(JSON.stringify(processes));
@@ -209,7 +209,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.updateSpawnedProcess', () => {
         it('accepts stdIn and stdInEnd actions', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'stdOut') {
@@ -224,7 +224,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('accepts the exit action', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'exit') {
@@ -240,7 +240,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('captures stdErr output', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'stdErr') {
@@ -254,7 +254,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('exits with code zero on success', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'exit') {
@@ -269,7 +269,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('handles multiple stdIn commands', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 let output = '';
                 Neutralino.events.on('spawnedProcess', async (evt) => {
@@ -290,7 +290,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('handles stdInEnd without stdIn', async () => {
-            runner.run(`
+            await runner.run(`
                 let proc = await Neutralino.os.spawnProcess('node');
                 Neutralino.events.on('spawnedProcess', async (evt) => {
                     if(evt.detail.id == proc.id && evt.detail.action == 'exit') {
@@ -306,7 +306,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.getEnv', () => {
         it('returns an environment variable value', async () => {
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.os.getEnv('PATH');
                 await __close(value);
             `);
@@ -314,7 +314,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('returns an empty string if the key doesn\'t exist', async () => {
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.os.getEnv('test_env_key');
                 await __close(value);
             `);
@@ -322,7 +322,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('throws an error for missing args', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.os.getEnv();
                 }
@@ -335,7 +335,7 @@ describe('os.spec: os namespace tests', () => {
 
         it('handles case-sensitive environment variables', async () => {
             process.env.TEST_VAR = 'testValue';
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.os.getEnv('TEST_VAR');
                 await __close(value);
             `);
@@ -344,7 +344,7 @@ describe('os.spec: os namespace tests', () => {
     
         it('retrieves value with leading or trailing spaces', async () => {
             process.env.SPACE_VAR = '  spacedValue  ';
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.os.getEnv('SPACE_VAR');
                 await __close(value);
             `);
@@ -353,7 +353,7 @@ describe('os.spec: os namespace tests', () => {
     
         it('retrieves value with special characters', async () => {
             process.env.SPECIAL_VAR = '@#$%^&*☊☄';
-            runner.run(`
+            await runner.run(`
                 let value = await Neutralino.os.getEnv('SPECIAL_VAR');
                 await __close(value);
             `);
@@ -363,7 +363,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.getEnvs', () => {
         it('returns all environment variables', async () => {
-            runner.run(`
+            await runner.run(`
                 let envs = await Neutralino.os.getEnvs();
                 await __close(JSON.stringify(envs));
             `);
@@ -373,7 +373,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('contains npm_command environment variable', async () => {
-            runner.run(`
+            await runner.run(`
                 let envs = await Neutralino.os.getEnvs();
                 await __close(JSON.stringify(envs));
             `);
@@ -382,7 +382,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('checks case sensitivity of environment variable keys', async () => {
-            runner.run(`
+            await runner.run(`
                 let envs = await Neutralino.os.getEnvs();
                 await __close(JSON.stringify(envs));
             `);
@@ -397,7 +397,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.showOpenDialog', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.os.showOpenDialog);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -406,7 +406,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.showFolderDialog', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.os.showFolderDialog);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -415,7 +415,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.showSaveDialog', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.os.showSaveDialog);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -424,7 +424,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.showNotification', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.showNotification('Hello', 'Neutralinojs');
                 await __close('done');
             `);
@@ -432,7 +432,7 @@ describe('os.spec: os namespace tests', () => {
         });
         
         it('displays notification with longer content', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.showNotification('Details', 'This is a notification with a longer message content to test the display capabilities.');
                 await __close('done');
             `);
@@ -443,7 +443,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.showMessageBox', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.os.showMessageBox);
             `);
             assert.equal(runner.getOutput(), 'function');
@@ -452,7 +452,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.setTray', () => {
         it('works without throwing errors', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.setTray({
                     icon: '/resources/icons/appIcon.png',
                     menuItems: [
@@ -466,7 +466,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('works when icon path is missing', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.setTray({
                     menuItems: [
                         {id: 'id1', text: 'ID1', checked: true, disabled: false},
@@ -480,7 +480,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('works with empty menu items array', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.setTray({
                     icon: '/resources/icons/appIcon.png',
                     menuItems: []
@@ -491,7 +491,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('sets a disabled and checked menu item correctly', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.setTray({
                     icon: '/resources/icons/appIcon.png',
                     menuItems: [
@@ -504,7 +504,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('works with a separator in the menu items', async () => {
-            runner.run(`
+            await runner.run(`
                 await Neutralino.os.setTray({
                     icon: '/resources/icons/appIcon.png',
                     menuItems: [
@@ -521,14 +521,14 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.open', () => {
         it('exports the function to the app', async () => {
-            runner.run(`
+            await runner.run(`
                 await __close(typeof Neutralino.os.open);
             `);
             assert.equal(runner.getOutput(), 'function');
         });       
 
         it('throws an error for non-string input', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.os.open(12345);
                 } catch (error) {
@@ -541,7 +541,7 @@ describe('os.spec: os namespace tests', () => {
 
     describe('os.getPath', () => {
         it('returns a known directory', async () => {
-            runner.run(`
+            await runner.run(`
                 let downloadsPath = await Neutralino.os.getPath('downloads');
                 await __close(downloadsPath);
             `);
@@ -549,7 +549,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('returns a valid path', async () => {
-            runner.run(`
+            await runner.run(`
                 let documentsPath;
                 documentsPath = await Neutralino.os.getPath('documents');
                 await __close(documentsPath);
@@ -561,7 +561,7 @@ describe('os.spec: os namespace tests', () => {
         });
 
         it('throws an error for non-existent directories', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.os.getPath('nonExistentDir');
                 }

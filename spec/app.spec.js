@@ -6,7 +6,7 @@ describe('app.spec: app namespace tests', () => {
     describe('app.exit', () => {
 
         it('works without parameters', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 setTimeout(() => {
                     Neutralino.app.exit();
                 }, 2000);
@@ -15,7 +15,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('works with parameters', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 setTimeout(() => {
                     Neutralino.app.exit(1);
                 }, 2000);
@@ -24,7 +24,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('throws an error for invalid exit codes', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.app.exit('invalid');
                 } catch(err) {
@@ -37,7 +37,7 @@ describe('app.spec: app namespace tests', () => {
 
     describe('app.killProcess', () => {
         it('closes the app immediately', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 setTimeout(() => {
                     Neutralino.app.killProcess();
                 }, 2000);
@@ -48,7 +48,7 @@ describe('app.spec: app namespace tests', () => {
 
     describe('app.getConfig', () => {
         it('JSON object contains the right fields', async () => {
-            runner.run(`
+            await runner.run(`
                 let config = await Neutralino.app.getConfig();
                 await __close(JSON.stringify(config));
             `);
@@ -71,7 +71,7 @@ describe('app.spec: app namespace tests', () => {
 
     describe('app.broadcast', () => {
         it('triggers the registered event callback', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 function onTestEvent(evt) {
                     __close('done');
                 }
@@ -82,7 +82,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('triggers the registered event callback with data', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 function onTestEvent(evt) {
                     __close(evt.detail);
                 }
@@ -93,7 +93,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('throws an error for missing params', async () => {
-            let exitCode = runner.run(`
+            let exitCode = await runner.run(`
                 try {
                     await Neutralino.app.broadcast();
                 }
@@ -105,7 +105,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('throws an error for an invalid event name', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.app.broadcast(12345); 
                 } catch(err) {
@@ -116,7 +116,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('broadcasts an event with no listeners registered', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     await Neutralino.app.broadcast('eventWithNoListener');
                     await __close('success');
@@ -129,7 +129,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('handles high load by broadcasting multiple events rapidly', async () => {
-            runner.run(`
+            await runner.run(`
                 try {
                     for (let i = 0; i < 1000; i++) {
                         Neutralino.app.broadcast('testEvent' + i);
@@ -143,7 +143,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('triggers all registered listeners when broadcasting an event', async () => {
-            runner.run(`
+            await runner.run(`
                 let listener1Triggered = false;
                 let listener2Triggered = false;
             
@@ -168,7 +168,7 @@ describe('app.spec: app namespace tests', () => {
         });
 
         it('handles errors in listeners gracefully', async () => {
-            runner.run(`
+            await runner.run(`
                 let safeListenerCalled = false;
             
                 function errorListener() {
@@ -190,7 +190,7 @@ describe('app.spec: app namespace tests', () => {
         });
     
         it('executes listeners in the order they were added', async () => {
-            runner.run(`
+            await runner.run(`
                 let order = [];
             
                 function listener1() {

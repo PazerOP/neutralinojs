@@ -5,7 +5,7 @@ const runner = require('./runner');
 describe('globalvariables.spec: Global variables relatedtests', () => {
 
     it('loads basic internal global variables to the window scope', async () => {
-        runner.run(`
+        await runner.run(`
             let globals = [];
             for(let key in window) {
                 if(key.includes('NL_')) {
@@ -28,28 +28,28 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('adds command-line arguments to NL_ARGS', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_ARGS.toString());
         `, {args: '--test-arg'});
         assert.ok(runner.getOutput().includes('--test-arg'));
     });
 
     it('updates NL_PID with the process identifier', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_PID.toString());
         `);
         assert.ok(parseInt(runner.getOutput()) > 0);
     });
 
     it('includes resource mode of the app in NL_RESMODE', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_RESMODE.toString());
         `);
         assert.equal(runner.getOutput(), 'directory');
     });
 
     it('includes the extension loader status in NL_EXTENABLED', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_EXTENABLED.toString());
         `, {args: '--enable-extensions'});
 
@@ -59,7 +59,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('exports custom global variables', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(
                 JSON.stringify({
                     NL_TEST1,
@@ -87,21 +87,21 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('sets NL_PORT properly', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_PORT.toString());
         `, {args: '--port=53999'});
         assert.ok(runner.getOutput().includes('53999'));
     });
 
     it('handles an unexpected NL_ARGS value', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_ARGS.toString());
         `, {args: '--unknown-arg'});
         assert.ok(runner.getOutput().includes('--unknown-arg'));
     });
 
     it('handles NL_PID when not running in a process context', async () => {
-        runner.run(`
+        await runner.run(`
             if (typeof NL_PID === 'undefined') {
                 await __close('undefined');
             } else {
@@ -113,7 +113,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('handles NL_RESMODE with an unexpected value', async () => {
-        runner.run(`
+        await runner.run(`
             NL_RESMODE = 'unexpected_mode';
     
             await __close(NL_RESMODE);
@@ -123,14 +123,14 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('handles NL_EXTENABLED with various command-line arguments', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_EXTENABLED.toString());
         `, {args: '--enable-extensions --another-arg'});
         let extStatus = JSON.parse(runner.getOutput());
         assert.ok(typeof extStatus == 'boolean');
         assert.equal(extStatus, true);
 
-        runner.run(`
+        await runner.run(`
             await __close(NL_EXTENABLED.toString());
         `, {args: '--disable-extensions'});
         extStatus = JSON.parse(runner.getOutput());
@@ -139,7 +139,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('tests the mutability of NL_OS', async () => {
-        runner.run(`
+        await runner.run(`
             NL_OS = 'Darwin';
 
             await __close(NL_OS);`);
@@ -148,7 +148,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('handles changing custom global variables', async () => {
-        runner.run(`
+        await runner.run(`
             const originalTest1 = NL_TEST1;
             const originalTest2 = JSON.stringify(NL_TEST2);
             const originalTest3 = JSON.stringify(NL_TEST3);
@@ -178,7 +178,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('verifies NL_PATH conforms to expected file path format', async () => {
-        runner.run(`
+        await runner.run(`
             await __close(NL_PATH.toString());
         `);
     
@@ -194,15 +194,15 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
 
     });
 
-    it('should be able to access NL_OS in the global scope', () => {
-        runner.run(`
+    it('should be able to access NL_OS in the global scope', async () => {
+        await runner.run(`
             await __close(NL_OS);
         `);
         assert.equal(typeof runner.getOutput(), 'string');
     });
     
     it('should be able to access NL_OS within a function', async () => {
-        runner.run(`
+        await runner.run(`
             async function testFn() {
                 await __close(typeof NL_OS);
             }
@@ -213,7 +213,7 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('should be able to access NL_OS within a nested function', async () => {
-        runner.run(`
+        await runner.run(`
             async function outerFn() {
                 async function innerFn() {
                     await __close(typeof NL_OS);
@@ -227,14 +227,14 @@ describe('globalvariables.spec: Global variables relatedtests', () => {
     });
 
     it('should not persist unintended modifications across tests', async () => {
-        runner.run(`
+        await runner.run(`
             NL_TEST1 = 'TempValue';
             await __close(NL_TEST1);
         `);
             
         assert.equal(runner.getOutput(), 'TempValue');
             
-        runner.run(`
+        await runner.run(`
             await __close(NL_TEST1);
         `);
 
