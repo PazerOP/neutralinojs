@@ -337,8 +337,13 @@ string getDocumentRoot() {
     json jDocumentRoot = settings::getOptionForCurrentMode("documentRoot");
     if(!jDocumentRoot.is_null()) {
         documentRoot = jDocumentRoot.get<string>();
-        
-        if(documentRoot.back() == '/') {
+
+        // Ensure documentRoot starts with '/' for proper path joining
+        if(!documentRoot.empty() && documentRoot.front() != '/') {
+            documentRoot = "/" + documentRoot;
+        }
+
+        if(!documentRoot.empty() && documentRoot.back() == '/') {
             documentRoot.pop_back();
         }
     }

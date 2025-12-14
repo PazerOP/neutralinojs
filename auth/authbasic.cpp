@@ -36,15 +36,16 @@ void init() {
 }
 
 void exportAuthInfo() {
-    string tempDirPath = settings::joinAppDataPath("/.tmp");
+    string tempDirPath = FS_CONVWSTR(filesystem::temp_directory_path()) + "/neutralinojs-" + settings::getAppId();
+    tempDirPath = helpers::normalizePath(tempDirPath);
     try {
         filesystem::create_directories(CONVSTR(tempDirPath));
-    } 
+    }
     catch (const filesystem::filesystem_error& e) {
         debug::log(debug::LogTypeError, "Failed to create " + tempDirPath);
         return;
     }
-    string tempAuthInfoPath = settings::joinAppDataPath("/.tmp/auth_info.json");
+    string tempAuthInfoPath = tempDirPath + "/auth_info.json";
     fs::FileWriterOptions fileWriterOptions = {
         tempAuthInfoPath,
         __makeAuthInfoPayload().dump()
