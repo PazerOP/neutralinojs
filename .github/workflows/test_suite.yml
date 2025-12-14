@@ -2,7 +2,11 @@ name: Test suite
 
 on: [push, pull_request]
 
-env: 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
   BUILD_CLIENT: |
     npm i -g @electron/asar
     cd ..
@@ -15,14 +19,14 @@ env:
 jobs:
   build-linux:
     runs-on: ubuntu-22.04
-    
+
     strategy:
       matrix:
         arch: [x64, arm64, armhf]
-        
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Libraries
       if: ${{ matrix.arch == 'x64' }}
@@ -42,7 +46,7 @@ jobs:
         
     - name: Build
       if: ${{ matrix.arch == 'arm64' || matrix.arch == 'armhf' }}
-      uses: uraimo/run-on-arch-action@v2
+      uses: uraimo/run-on-arch-action@v3
       id: build-package
       with:
         arch: ${{ matrix.arch == 'arm64' && 'aarch64' || 'armv7' }}
@@ -87,7 +91,7 @@ jobs:
     runs-on: windows-2022
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build
       run: python ./scripts/bz.py
@@ -111,15 +115,15 @@ jobs:
         npm run test
 
   build-darwin:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build
       run: |
-        ./scripts/bz.py --target_arch x64
-        chmod +x ./bin/neutralino-mac_x64
+        ./scripts/bz.py --target_arch arm64
+        chmod +x ./bin/neutralino-mac_arm64
 
     - name: Setup Spec Requirements (Build client)
       run: |
