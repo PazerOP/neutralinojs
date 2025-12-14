@@ -164,52 +164,35 @@ void startAsync() {
 }
 
 void stop() {
-    cerr << "[neuserver] stop() called" << endl;
-    cerr << "[neuserver] stop_listening..." << endl;
     server->stop_listening();
-    cerr << "[neuserver] stop_listening done" << endl;
 
     // Close all app connections
-    cerr << "[neuserver] closing " << appConnections.size() << " app connections..." << endl;
     for (const auto &connection : appConnections) {
         try {
             server->close(connection, websocketpp::close::status::going_away, "Server shutting down");
-        } catch (const exception &e) {
-            cerr << "[neuserver] error closing app connection: " << e.what() << endl;
         } catch (...) {
-            cerr << "[neuserver] unknown error closing app connection" << endl;
+            // Ignore errors during shutdown
         }
     }
-    cerr << "[neuserver] app connections closed" << endl;
 
     // Close all extension connections
-    cerr << "[neuserver] closing " << extConnections.size() << " ext connections..." << endl;
     for (const auto &[_, connection] : extConnections) {
         try {
             server->close(connection, websocketpp::close::status::going_away, "Server shutting down");
-        } catch (const exception &e) {
-            cerr << "[neuserver] error closing ext connection: " << e.what() << endl;
         } catch (...) {
-            cerr << "[neuserver] unknown error closing ext connection" << endl;
+            // Ignore errors during shutdown
         }
     }
-    cerr << "[neuserver] ext connections closed" << endl;
 
     appConnections.clear();
     extConnections.clear();
-    cerr << "[neuserver] connections cleared" << endl;
 
     // Stop the ASIO io_service to exit the run loop
-    cerr << "[neuserver] stopping server..." << endl;
     try {
         server->stop();
-        cerr << "[neuserver] server stopped" << endl;
-    } catch (const exception &e) {
-        cerr << "[neuserver] error stopping server: " << e.what() << endl;
     } catch (...) {
-        cerr << "[neuserver] unknown error stopping server" << endl;
+        // Ignore errors during shutdown
     }
-    cerr << "[neuserver] stop() complete" << endl;
 }
 
 void handleMessage(websocketpp::connection_hdl handler, websocketserver::message_ptr msg) {
