@@ -1,11 +1,11 @@
 
 name: Create release
-on: 
+on:
   workflow_dispatch:
-    inputs: 
-      version: 
+    inputs:
+      version:
         type: text
-        description: 'Version number Eg: 4.2.0' 
+        description: 'Version number Eg: 4.2.0'
 
 jobs:
   build-linux-x64:
@@ -16,7 +16,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
         GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
-        
+
     steps:
     - name: Configure
       run: |
@@ -26,16 +26,19 @@ jobs:
         git \
         libgtk-3-dev \
         libwebkit2gtk-4.0-37 \
-        libwebkit2gtk-4.0-dev
-        
-    - name: Checkout 
+        libwebkit2gtk-4.0-dev \
+        cmake \
+        ninja-build
+
+    - name: Checkout
       uses: actions/checkout@v3
-        
+
     - name: Build
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
-        ./scripts/bz.py
-      
+        cmake -B build -G Ninja
+        cmake --build build
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4.4.0
       with:
@@ -44,15 +47,15 @@ jobs:
 
   build-linux-arm:
     runs-on: ubuntu-22.04
-    
+
     strategy:
       matrix:
         arch: [arm64, armhf]
-        
+
     steps:
-    - name: Checkout 
+    - name: Checkout
       uses: actions/checkout@v3
-      
+
     - name: Build
       uses: uraimo/run-on-arch-action@v3
       id: build-package
@@ -65,18 +68,20 @@ jobs:
           libgtk-3-dev \
           libwebkit2gtk-4.0-dev \
           git \
-          python3 \
           g++ \
-          pkg-config
+          pkg-config \
+          cmake \
+          ninja-build
         githubToken: ${{ github.token }}
-        
+
         dockerRunArgs: |
             --volume "${PWD}/bin:${PWD}/bin"
 
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
-          ./scripts/bz.py
-      
+          cmake -B build -G Ninja
+          cmake --build build
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4.4.0
       with:
@@ -86,11 +91,12 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
-    - name: Checkout 
+    - name: Checkout
       uses: actions/checkout@v3
     - name: Build
-      run: python ./scripts/bz.py
-      shell: cmd
+      run: |
+        cmake -B build -G Ninja
+        cmake --build build
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4.4.0
       with:
@@ -102,10 +108,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Install Ninja
+      run: brew install ninja
     - name: Build
       run: |
-        ./scripts/bz.py --target_arch x64
-        ./scripts/bz.py --target_arch arm64
+        cmake -B build-x64 -G Ninja -DCMAKE_OSX_ARCHITECTURES=x86_64
+        cmake --build build-x64
+        cmake -B build-arm64 -G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64
+        cmake --build build-arm64
         lipo bin/neutralino-mac_x64 bin/neutralino-mac_arm64 -create -output bin/neutralino-mac_universal
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4.4.0
@@ -115,27 +125,27 @@ jobs:
           bin/neutralino-mac_x64
           bin/neutralino-mac_arm64
           bin/neutralino-mac_universal
-        
+
   create-release:
     needs: [build-linux-x64, build-linux-arm, build-windows, build-darwin]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout 
+    - name: Checkout
       uses: actions/checkout@v3
-        
-    - name: Download Linux build artifacts 
+
+    - name: Download Linux build artifacts
       uses: actions/download-artifact@v4.1.7
       with:
         name: linux_x64_binary
         path: ./bin
-        
-    - name: Download Linux build artifacts 
+
+    - name: Download Linux build artifacts
       uses: actions/download-artifact@v4.1.7
       with:
         name: linux_arm64_binary
         path: ./bin
-        
-    - name: Download Linux build artifacts 
+
+    - name: Download Linux build artifacts
       uses: actions/download-artifact@v4.1.7
       with:
         name: linux_armhf_binary
@@ -146,39 +156,39 @@ jobs:
       with:
         name: win_binary
         path: ./bin
-        
-    - name: Download Darwin build artifacts 
+
+    - name: Download Darwin build artifacts
       uses: actions/download-artifact@v4.1.7
       with:
         name: darwin_binary
         path: ./bin
-        
+
     - name: Create Release zip
       uses: vimtor/action-zip@v1
       with:
         files: ./bin/neutralino-linux_x64 ./bin/neutralino-linux_arm64 ./bin/neutralino-linux_armhf ./bin/neutralino-win_x64.exe ./bin/neutralino-mac_x64 ./bin/neutralino-mac_arm64 ./bin/neutralino-mac_universal ./bin/WebView2Loader.dll
         dest: './bin/neutralinojs-v${{github.event.inputs.version}}.zip'
-        
+
     - name: Create Release Notes
       run: |
         chmod +x ./scripts/rz.py
         ./scripts/rz.py create ${{github.event.inputs.version}}
-        
+
     - name: Commit and Push Changelog
       uses: EndBug/add-and-commit@v9.1.3
       with:
         default_author: github_actions
-        message: 'Update changelog for v${{github.event.inputs.version}}' 
+        message: 'Update changelog for v${{github.event.inputs.version}}'
         add: 'CHANGELOG.md'
         tag: v${{github.event.inputs.version}}
-        
+
     - name: Create Branch
       uses: peterjgrainger/action-create-branch@v3.0.0
-      with: 
+      with:
         branch: v${{github.event.inputs.version}}
       env:
         GITHUB_TOKEN: ${{ secrets.COMMIT_TOKEN }}
-        
+
     - name: Create a GitHub release
       uses: ncipollo/release-action@v1
       with:
@@ -186,11 +196,11 @@ jobs:
           name: Neutralinojs v${{github.event.inputs.version}} released!
           bodyFile: ./.tmprz/release_notes.md
           artifacts: './bin/neutralinojs-v${{github.event.inputs.version}}.zip'
-          
+
     - name: Clean Release Notes
       run: |
         ./scripts/rz.py cleanup
-        
+
     - name: Send Discord Notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
