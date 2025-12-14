@@ -165,6 +165,34 @@ void startAsync() {
 
 void stop() {
     server->stop_listening();
+
+    // Close all app connections
+    for (const auto &connection : appConnections) {
+        try {
+            server->close(connection, websocketpp::close::status::going_away, "Server shutting down");
+        } catch (...) {
+            // Ignore errors during shutdown
+        }
+    }
+
+    // Close all extension connections
+    for (const auto &[_, connection] : extConnections) {
+        try {
+            server->close(connection, websocketpp::close::status::going_away, "Server shutting down");
+        } catch (...) {
+            // Ignore errors during shutdown
+        }
+    }
+
+    appConnections.clear();
+    extConnections.clear();
+
+    // Stop the ASIO io_service to exit the run loop
+    try {
+        server->stop();
+    } catch (...) {
+        // Ignore errors during shutdown
+    }
 }
 
 void handleMessage(websocketpp::connection_hdl handler, websocketserver::message_ptr msg) {
