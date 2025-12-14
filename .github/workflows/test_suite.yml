@@ -1,10 +1,12 @@
 name: Test suite
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, master, pazer/main]
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   BUILD_CLIENT: |
@@ -17,7 +19,20 @@ env:
     ./scripts/make_res_neu.sh
 
 jobs:
+  skip-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+    - id: skip_check
+      uses: fkirc/skip-duplicate-actions@v5
+      with:
+        concurrent_skipping: 'outdated_runs'
+        cancel_others: 'true'
+
   build-linux:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: ubuntu-22.04
 
     strategy:
@@ -28,6 +43,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      if: ${{ matrix.arch == 'x64' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
     - name: Install Libraries
       if: ${{ matrix.arch == 'x64' }}
       run: |
@@ -36,7 +59,8 @@ jobs:
         libgtk-3-dev \
         libwebkit2gtk-4.0-37 \
         libayatana-appindicator3-1 \
-        xvfb
+        xvfb \
+        xclip
 
     - name: Build
       if: ${{ matrix.arch == 'x64' }}
@@ -88,10 +112,19 @@ jobs:
 
 
   build-windows:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: windows-2022
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
 
     - name: Build
       run: python ./scripts/bz.py
@@ -115,10 +148,19 @@ jobs:
         npm run test
 
   build-darwin:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: macos-14
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
 
     - name: Build
       run: |
