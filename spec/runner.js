@@ -1,16 +1,10 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-
-// Persistent runner (loaded lazily to avoid requiring 'ws' when not in persistent mode)
-let persistentRunner = null;
-
-// Mode flag - set by index.js
-let usePersistentMode = false;
+const persistentRunner = require('./persistent-runner');
 
 // Last output from persistent mode (for getOutput compatibility)
-let lastPersistentOutput = '';
-let lastPersistentExitCode = 0;
+let lastOutput = '';
 
 const SOURCE_TEMPLATE = `
 {BEFORE_INIT_CODE}
@@ -47,120 +41,76 @@ const TMP_DIR = '../bin/.tmp';
 const OUTPUT_FILE = '../bin/.tmp/output.txt';
 const SOURCE_FILE = '../bin/resources/js/main_spec.js';
 
-// Set the mode (called from index.js)
-function setMode(persistent) {
-    usePersistentMode = persistent;
-    if (persistent && !persistentRunner) {
-        persistentRunner = require('./persistent-runner');
-    }
-}
-
 // Start the persistent app (called from mocha before hook)
 async function startApp() {
-    if (usePersistentMode && persistentRunner) {
-        await persistentRunner.startApp();
-    }
+    await persistentRunner.startApp();
 }
 
 // Stop the persistent app (called from mocha after hook)
 async function stopApp() {
-    if (usePersistentMode && persistentRunner) {
-        await persistentRunner.stopApp();
-    }
+    await persistentRunner.stopApp();
 }
 
-// Run test code - works in both modes
-// In persistent mode, this is async and must be awaited
-// In legacy mode, this is sync (returns exit code directly)
+// Run test code
 async function run(code, options = {}) {
-    if (usePersistentMode && persistentRunner && !options.args) {
-        // Persistent mode - use WebSocket
-        try {
-            const result = await persistentRunner.run(code, options);
-
-            // Handle fallback to old runner (when args are provided)
-            if (result.getOutput) {
-                lastPersistentOutput = result.getOutput();
-                lastPersistentExitCode = result.exitCode;
-                return result.exitCode;
-            }
-
-            lastPersistentOutput = result.result || '';
-            lastPersistentExitCode = result.exitCode || 0;
-            return lastPersistentExitCode;
-        } catch (err) {
-            if (err.error) {
-                lastPersistentOutput = err.error;
-                lastPersistentExitCode = err.exitCode || 1;
-            } else {
-                lastPersistentOutput = err.message || String(err);
-                lastPersistentExitCode = 1;
-            }
-            return lastPersistentExitCode;
-        }
+    // Tests with custom args need a fresh process (can't change window state dynamically)
+    if (options.args) {
+        lastOutput = '';
+        const exitCode = runWithArgs(code, options);
+        lastOutput = readOutputFile();
+        return exitCode;
     }
 
-    // Legacy mode - spawn new process
-    return runSync(code, options);
+    // Normal tests use persistent WebSocket connection
+    try {
+        const result = await persistentRunner.run(code, options);
+        lastOutput = result.result || '';
+        return result.exitCode || 0;
+    } catch (err) {
+        lastOutput = err.error || err.message || String(err);
+        return err.exitCode || 1;
+    }
 }
 
-// Original synchronous run function
-function runSync(code, options = {}) {
+// Spawn a new process for tests that need custom args
+function runWithArgs(code, options) {
     cleanup();
-    if(options.debug) {
-        console.log('INFO: Preparing app source...');
-    }
     fs.writeFileSync(SOURCE_FILE, makeAppSource(code, options.beforeInitCode));
 
-    if(options.debug) {
-        console.log('INFO: Running the app...');
-    }
     let exitCode = 0;
     try {
-        let command = makeCommand(options.args);
-        if(options.debug) {
-            console.log('INFO: Running command: ' + command);
-        }
-        execSync(command);
-    }
-    catch(err) {
+        execSync(makeCommand(options.args));
+    } catch (err) {
         exitCode = err.status;
-    }
-
-    if(options.debug) {
-        console.log('INFO: Test app was closed...');
     }
     return exitCode;
 }
 
 function getOutput() {
-    if (usePersistentMode) {
-        const output = lastPersistentOutput;
-        lastPersistentOutput = '';
-        return output;
-    }
+    const output = lastOutput;
+    lastOutput = '';
+    return output;
+}
 
-    let content = ''
+function readOutputFile() {
     try {
-        content = fs.readFileSync(OUTPUT_FILE, 'utf8');
+        const content = fs.readFileSync(OUTPUT_FILE, 'utf8');
+        cleanup();
+        return content;
+    } catch (err) {
+        cleanup();
+        return '';
     }
-    catch (err) {
-        // ignore
-    }
-    cleanup();
-    return content;
 }
 
 function makeCommand(optArgs = '') {
     let command = `..${path.sep}bin${path.sep}neutralino-`;
-    if(process.platform == 'linux') {
-        command += 'linux_' + process.arch
-    }
-    else if(process.platform == 'darwin') {
-        command += 'mac_' + process.arch
-    }
-    else if(process.platform == 'win32') {
-        command += 'win_x64.exe'
+    if (process.platform == 'linux') {
+        command += 'linux_' + process.arch;
+    } else if (process.platform == 'darwin') {
+        command += 'mac_' + process.arch;
+    } else if (process.platform == 'win32') {
+        command += 'win_x64.exe';
     }
     command += ' --load-dir-res --window-exit-process-on-close ' +
         '--url=/index_spec.html --window-enable-inspector=false ' + optArgs;
@@ -177,21 +127,14 @@ function cleanup() {
     try {
         fs.rmSync(TMP_DIR, { recursive: true });
         fs.unlinkSync(SOURCE_FILE);
-    }
-    catch(err) {
+    } catch (err) {
         // ignore
     }
-}
-
-function isPersistentMode() {
-    return usePersistentMode;
 }
 
 module.exports = {
     run,
     getOutput,
-    setMode,
     startApp,
-    stopApp,
-    isPersistentMode
+    stopApp
 }

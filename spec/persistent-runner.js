@@ -182,16 +182,6 @@ function broadcastEvent(eventName, eventData) {
 }
 
 async function run(code, options = {}) {
-    // If custom args are provided, fall back to old runner
-    // since we can't change window state dynamically
-    if (options.args) {
-        const oldRunner = require('./runner');
-        return {
-            exitCode: oldRunner.run(code, options),
-            getOutput: () => oldRunner.getOutput()
-        };
-    }
-
     if (!isReady) {
         throw new Error('App not ready. Call startApp() first.');
     }

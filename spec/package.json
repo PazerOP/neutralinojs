@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js --persistent",
-    "test:legacy": "node index.js"
+    "test": "node index.js"
   },
   "author": "",
   "license": "MIT",
