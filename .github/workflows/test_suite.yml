@@ -7,7 +7,6 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   BUILD_CLIENT: |
@@ -20,7 +19,20 @@ env:
     ./scripts/make_res_neu.sh
 
 jobs:
+  skip-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+    - id: skip_check
+      uses: fkirc/skip-duplicate-actions@v5
+      with:
+        concurrent_skipping: 'outdated_runs'
+        cancel_others: 'true'
+
   build-linux:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: ubuntu-22.04
 
     strategy:
@@ -100,6 +112,8 @@ jobs:
 
 
   build-windows:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: windows-2022
     steps:
     - name: Checkout
@@ -134,6 +148,8 @@ jobs:
         npm run test
 
   build-darwin:
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
     runs-on: macos-14
     steps:
     - name: Checkout
