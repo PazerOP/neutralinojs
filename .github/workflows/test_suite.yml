@@ -58,16 +58,20 @@ jobs:
         sudo apt-get install -y -f \
         libgtk-3-dev \
         libwebkit2gtk-4.0-37 \
+        libwebkit2gtk-4.0-dev \
         libayatana-appindicator3-1 \
         xvfb \
-        xclip
+        xclip \
+        cmake \
+        ninja-build
 
     - name: Build
       if: ${{ matrix.arch == 'x64' }}
       run: |
-        ./scripts/bz.py
+        cmake -B build -G Ninja
+        cmake --build build
         chmod +x ./bin/neutralino-linux_x64
-        
+
     - name: Build
       if: ${{ matrix.arch == 'arm64' || matrix.arch == 'armhf' }}
       uses: uraimo/run-on-arch-action@v3
@@ -81,15 +85,17 @@ jobs:
           libgtk-3-dev \
           libwebkit2gtk-4.0-dev \
           git \
-          python3 \
           g++ \
-          pkg-config
+          pkg-config \
+          cmake \
+          ninja-build
 
         githubToken: ${{ github.token }}
 
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
-          ./scripts/bz.py
+          cmake -B build -G Ninja
+          cmake --build build
 
     - name: Setup Spec Requirements (Build client)
       if: ${{ matrix.arch == 'x64' }}
@@ -127,8 +133,9 @@ jobs:
         cache-dependency-path: '**/package-lock.json'
 
     - name: Build
-      run: python ./scripts/bz.py
-      shell: cmd
+      run: |
+        cmake -B build -G Ninja
+        cmake --build build
 
     - name: Setup Spec Requirements (Build client)
       shell: bash
@@ -162,9 +169,13 @@ jobs:
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
+    - name: Install Ninja
+      run: brew install ninja
+
     - name: Build
       run: |
-        ./scripts/bz.py --target_arch arm64
+        cmake -B build -G Ninja
+        cmake --build build
         chmod +x ./bin/neutralino-mac_arm64
 
     - name: Setup Spec Requirements (Build client)
