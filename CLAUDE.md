@@ -9,14 +9,18 @@ Neutralinojs is a lightweight, portable desktop application framework for buildi
 ## Build Commands
 
 ```bash
-# Build the framework (produces ./bin/neutralino-${OS}_${ARCH})
-./scripts/bz.py
+# Configure (once, or after CMakeLists.txt changes)
+cmake -B build -G Ninja
+
+# Build (produces ./bin/neutralino-${OS}_${ARCH})
+cmake --build build
 
 # Verbose build output
-./scripts/bz.py --verbose
+cmake --build build --verbose
 
 # Cross-compile on macOS
-./scripts/bz.py --target_arch x64|arm64|armhf
+cmake -B build -G Ninja -DCMAKE_OSX_ARCHITECTURES=x86_64  # or arm64
+cmake --build build
 ```
 
 ## Testing
@@ -78,7 +82,7 @@ Test specs are in `/spec/*.spec.js` (app, clipboard, computer, debug, events, ex
 
 ## Build Configuration
 
-Build settings are in `buildzri.config.json` with platform-specific:
+Build settings are in `CMakeLists.txt` with platform-specific:
 - Include paths
 - Source files
 - Compiler options and definitions
