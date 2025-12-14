@@ -2,7 +2,7 @@ name: Test suite
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, pazer/main]
   pull_request:
 
 concurrency:
